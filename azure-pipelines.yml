@@ -13,7 +13,7 @@ stages:
   - job: WebsiteBuild
     displayName: Build Fabrikam Drone Status app using Gatbsyjs
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'Ubuntu-18.04'
     continueOnError: false
     steps:
     - task: NodeTool@0
@@ -61,7 +61,7 @@ stages:
   - deployment: WebsiteDeploy
     displayName: Deploy Fabrikam Drone Status app
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: 'Ubuntu-18.04'
     environment: 'fabrikamdronestatus-prod'
     strategy:
       runOnce:
@@ -70,6 +70,8 @@ stages:
           - script: |
               echo '##vso[task.setvariable variable=releaseVersion]'$(cat "$(Pipeline.Workspace)/drop/version.txt")
               echo '##vso[task.setvariable variable=releaseSemVer]'$(cat "$(Pipeline.Workspace)/drop/semver.txt")
+              python -m pip install --upgrade pip
+              pip install --pre azure-cli --extra-index-url https://azurecliprod.blob.core.windows.net/edge
             displayName: 'set release version'
             name: setVarReleaseVersion
 
@@ -83,6 +85,7 @@ stages:
               title: 'Fabrikam Drone Status App v1'
           
           - script: |
+          
               az login --service-principal -u $(azureArmClientId) -p $(azureArmClientSecret) --tenant $(azureArmTenantId)
               # upload content to container versioned folder
               az storage blob upload-batch -s "$(Pipeline.Workspace)/drop" --destination "\$web\$(releaseSemVer)" --account-name $(azureStorageAccountName) --account-key $(key) --content-encoding br --pattern "*.html" --content-type "text/html"
