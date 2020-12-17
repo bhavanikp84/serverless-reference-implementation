@@ -79,8 +79,8 @@ stages:
               gitHubConnection: $(gitHubServiceConnectionName)
               tagSource: manual
               action: edit
-              tag: $(releaseVersion)
-              title: 'Fabrikam Drone Status App $(releaseVersion)'
+              tag: 1
+              title: 'Fabrikam Drone Status App'
           
           - script: |
               az login --service-principal -u $(azureArmClientId) -p $(azureArmClientSecret) --tenant $(azureArmTenantId)
